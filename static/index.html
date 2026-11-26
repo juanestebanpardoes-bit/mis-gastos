@@ -269,6 +269,49 @@
     #mensaje.exito { background: var(--exito); }
     #mensaje.error { background: var(--error); }
 
+    /* Pantalla de acceso / registro */
+    #acceso {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #f7d774 0%, #fdf8ef 45%, #bfe6d1 100%);
+      z-index: 20;
+    }
+    #acceso[hidden] { display: none; }
+
+    .tarjeta-acceso {
+      width: min(420px, 100%);
+      background: var(--tarjeta);
+      border: 1px solid var(--borde);
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(20, 52, 43, 0.18);
+      padding: 32px;
+    }
+    .tarjeta-acceso h2 { font-size: 1.6rem; margin-bottom: 4px; }
+    .pestanas { display: flex; gap: 8px; margin: 22px 0 18px; }
+    .pestanas button {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--borde);
+      border-radius: 11px;
+      background: #fffdf8;
+      color: var(--suave);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .pestanas button.activa {
+      background: var(--principal);
+      border-color: var(--principal);
+      color: #fff;
+    }
+    #error-acceso { min-height: 20px; margin: 10px 0 0; color: var(--error); font-size: 0.85rem; }
+
+    .barra-usuario { display: flex; align-items: center; gap: 10px; }
+    #nombre-usuario { color: var(--principal); font-weight: 700; }
+
     dialog {
       width: min(440px, 92%);
       border: 0;
@@ -296,6 +339,10 @@
           <p class="subtitulo" data-i18n="subtitulo">Anota tus gastos y descubre adónde va tu dinero.</p>
         </div>
       </div>
+      <span class="barra-usuario">
+        <span id="nombre-usuario"></span>
+        <button id="salir" class="boton secundario pequeno" type="button" data-i18n="salir">Salir</button>
+      </span>
       <span class="etiqueta-api">
         <span data-i18n="etiquetaApi">API REST · SQLite</span>
         <select id="moneda" class="selector-idioma" aria-label="Moneda / Currency">
@@ -408,6 +455,29 @@
     </form>
   </dialog>
 
+  <div id="acceso">
+    <div class="tarjeta-acceso">
+      <h2 data-i18n="bienvenido">Bienvenido a Mis Gastos</h2>
+      <p class="ayuda" data-i18n="accesoAyuda">Regístrate o inicia sesión para ver tus gastos.</p>
+      <div class="pestanas">
+        <button id="pestana-login" class="activa" type="button" data-i18n="iniciarSesion">Iniciar sesión</button>
+        <button id="pestana-registro" type="button" data-i18n="registrarse">Registrarse</button>
+      </div>
+      <form id="formulario-acceso">
+        <div class="campo">
+          <label for="usuario-acceso" data-i18n="usuario">Usuario</label>
+          <input id="usuario-acceso" type="text" autocomplete="username" required>
+        </div>
+        <div class="campo">
+          <label for="clave-acceso" data-i18n="contrasena">Contraseña</label>
+          <input id="clave-acceso" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="boton ancho" type="submit" data-i18n="entrar">Entrar</button>
+      </form>
+      <p id="error-acceso" role="alert"></p>
+    </div>
+  </div>
+
   <div id="mensaje" role="status" aria-live="polite"></div>
 
   <script>
@@ -461,7 +531,19 @@
         eliminado: "Gasto eliminado correctamente.",
         confirmar: '¿Eliminar el gasto "' + "{nombre}" + '"?',
         ayudaConversion: "Los valores se guardan en pesos colombianos (COP). Mínimo: $ 100 COP.",
-        monedaCambiada: "Moneda cambiada a"
+        monedaCambiada: "Moneda cambiada a",
+        bienvenido: "Bienvenido a Mis Gastos",
+        accesoAyuda: "Regístrate o inicia sesión para ver tus gastos.",
+        iniciarSesion: "Iniciar sesión",
+        registrarse: "Registrarse",
+        usuario: "Usuario",
+        contrasena: "Contraseña",
+        entrar: "Entrar",
+        salir: "Salir",
+        sesionIniciada: "Sesión iniciada correctamente.",
+        cuentaCreada: "Cuenta creada correctamente.",
+        sesionCerrada: "Sesión cerrada.",
+        minimoCop: "Mínimo: $ 100 COP (about $ 0.025 USD / € 0.023 EUR)."
       },
       en: {
         titulo: "My Expenses",
@@ -498,7 +580,19 @@
         eliminado: "Expense deleted successfully.",
         confirmar: 'Delete the expense "' + "{nombre}" + '"?',
         ayudaConversion: "Values are stored in Colombian pesos (COP). Minimum: $ 100 COP.",
-        monedaCambiada: "Currency changed to"
+        monedaCambiada: "Currency changed to",
+        bienvenido: "Welcome to My Expenses",
+        accesoAyuda: "Sign up or log in to see your expenses.",
+        iniciarSesion: "Log in",
+        registrarse: "Sign up",
+        usuario: "Username",
+        contrasena: "Password",
+        entrar: "Log in",
+        salir: "Log out",
+        sesionIniciada: "Logged in successfully.",
+        cuentaCreada: "Account created successfully.",
+        sesionCerrada: "Logged out successfully.",
+        minimoCop: "Minimum: $ 100 COP (about $ 0.025 USD / € 0.023 EUR)."
       }
     };
 
@@ -508,7 +602,10 @@
       editandoId: null,
       temporizadorMensaje: null,
       idioma: localStorage.getItem("misgastos-idioma") === "en" ? "en" : "es",
-      moneda: MONEDAS[monedaGuardada] ? monedaGuardada : "COP"
+      moneda: MONEDAS[monedaGuardada] ? monedaGuardada : "COP",
+      modoAcceso: "login",
+      autenticado: false,
+      nombre: ""
     };
 
     const $ = (id) => document.getElementById(id);
@@ -533,6 +630,26 @@
       });
     }
 
+    function precioMinimo() {
+      return convertirDesdeCOP(100);
+    }
+
+    // Ajusta etiqueta, mínimo y paso del campo monto según la moneda activa.
+    function aplicarMonedaCampos() {
+      const etiqueta = t("monto").replace("COP", estado.moneda);
+      $("etiqueta-monto").textContent = etiqueta;
+      $("etiqueta-editar-monto").textContent = etiqueta;
+      $("ayuda-monto").textContent = t("ayudaConversion");
+      $("ayuda-editar-monto").textContent = t("ayudaConversion");
+      const minimo = estado.moneda === "COP" ? "100" : "0.0001";
+      const paso = estado.moneda === "COP" ? "1" : "any";
+      for (const id of ["monto", "editar-monto"]) {
+        $(id).min = minimo;
+        $(id).step = paso;
+        $(id).placeholder = estado.moneda === "COP" ? "100" : "0.025";
+      }
+    }
+
     // Aplica todos los textos traducibles a la página.
     function aplicarIdioma() {
       document.documentElement.lang = estado.idioma;
@@ -548,15 +665,11 @@
       $("idioma").setAttribute("aria-label", estado.idioma === "es" ? "Idioma" : "Language");
       $("moneda").setAttribute("aria-label", estado.idioma === "es" ? "Moneda" : "Currency");
 
-      // Etiquetas de monto y ayuda según la moneda seleccionada.
+      // Controles de moneda y sesión.
       $("moneda").value = estado.moneda;
-      const etiqueta = t("monto").replace("COP", estado.moneda);
-      $("etiqueta-monto").textContent = etiqueta;
-      $("etiqueta-editar-monto").textContent = etiqueta;
-      $("ayuda-monto").textContent = t("ayudaConversion");
-      $("ayuda-editar-monto").textContent = t("ayudaConversion");
-      $("monto").placeholder = estado.moneda === "COP" ? "100" : "0.01";
-      $("editar-monto").placeholder = $("monto").placeholder;
+      aplicarMonedaCampos();
+      $("nombre-usuario").textContent = estado.nombre;
+      $("salir").hidden = !estado.autenticado;
 
       renderizarResumen(estado.resumen);
       renderizarTabla();
@@ -646,7 +759,47 @@
       `).join("");
     }
 
+    // --- Acceso de usuarios -------------------------------------------------
+    function mostrarAcceso(visible) {
+      $("acceso").hidden = !visible;
+      if (visible) {
+        $("error-acceso").textContent = "";
+        $("usuario-acceso").focus();
+      }
+    }
+
+    function cambiarModoAcceso(modo) {
+      estado.modoAcceso = modo;
+      $("pestana-login").classList.toggle("activa", modo === "login");
+      $("pestana-registro").classList.toggle("activa", modo === "registro");
+      $("formulario-acceso").querySelector('button[type="submit"]').textContent =
+        t(modo === "login" ? "entrar" : "registrarse");
+      $("clave-acceso").autocomplete = modo === "login" ? "current-password" : "new-password";
+      $("error-acceso").textContent = "";
+    }
+
+    async function verificarSesion() {
+      try {
+        const datos = await pedir("/sesion");
+        estado.autenticado = Boolean(datos.autenticado);
+        estado.nombre = datos.nombre || "";
+      } catch (error) {
+        estado.autenticado = false;
+        estado.nombre = "";
+      }
+      aplicarIdioma();
+      mostrarAcceso(!estado.autenticado);
+      if (estado.autenticado) cargarDatos();
+      else {
+        estado.gastos = [];
+        estado.resumen = { total: 0, por_categoria: {} };
+        renderizarTabla();
+        renderizarResumen(estado.resumen);
+      }
+    }
+
     async function cargarDatos() {
+      if (!estado.autenticado) return;
       const filtro = $("buscador").value.trim();
       const consulta = filtro ? "?filtro=" + encodeURIComponent(filtro) : "";
       try {
@@ -762,10 +915,50 @@
       mostrarMensaje(t("monedaCambiada") + " " + estado.moneda, "exito");
     });
 
-    // Inicio: fecha de hoy, idioma guardado y primera carga desde la API.
+    $("pestana-login").addEventListener("click", () => cambiarModoAcceso("login"));
+    $("pestana-registro").addEventListener("click", () => cambiarModoAcceso("registro"));
+
+    $("formulario-acceso").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      const ruta = estado.modoAcceso === "login" ? "/login" : "/registro";
+      try {
+        const datos = await pedir(ruta, "POST", cuerpoJSON({
+          nombre: $("usuario-acceso").value,
+          contrasena: $("clave-acceso").value,
+        }));
+        estado.autenticado = true;
+        estado.nombre = datos.nombre;
+        $("clave-acceso").value = "";
+        mostrarAcceso(false);
+        aplicarIdioma();
+        await cargarDatos();
+        mostrarMensaje(t(estado.modoAcceso === "login" ? "sesionIniciada" : "cuentaCreada"), "exito");
+      } catch (error) {
+        $("error-acceso").textContent = error.message;
+      }
+    });
+
+    $("salir").addEventListener("click", async () => {
+      try {
+        await pedir("/logout", "POST", { headers: { "Content-Type": "application/json" } });
+      } catch (error) {
+        // Se cierra la sesión localmente aunque falle la petición.
+      }
+      estado.autenticado = false;
+      estado.nombre = "";
+      estado.gastos = [];
+      estado.resumen = { total: 0, por_categoria: {} };
+      aplicarIdioma();
+      renderizarTabla();
+      renderizarResumen(estado.resumen);
+      mostrarAcceso(true);
+      mostrarMensaje(t("sesionCerrada"), "exito");
+    });
+
+    // Inicio: fecha de hoy, idioma guardado y comprobación de sesión.
     $("fecha").valueAsDate = new Date();
     aplicarIdioma();
-    cargarDatos();
+    verificarSesion();
   </script>
 </body>
 </html>

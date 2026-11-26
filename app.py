@@ -10,6 +10,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
+COOKIE_SESION = "misgastos_sesion"
+
 import database
 import services
 
@@ -46,7 +48,7 @@ class ManejadorAPI(BaseHTTPRequestHandler):
     def do_DELETE(self):
         self._despachar("DELETE")
 
-    def _enviar(self, codigo, cuerpo, tipo="application/json; charset=utf-8"):
+    def _enviar(self, codigo, cuerpo, tipo="application/json; charset=utf-8", cookie=None):
         """Envía una respuesta con Content-Length para HTTP/1.1."""
         if isinstance(cuerpo, (dict, list)):
             contenido = json.dumps(cuerpo, ensure_ascii=False).encode("utf-8")
@@ -56,14 +58,38 @@ class ManejadorAPI(BaseHTTPRequestHandler):
         self.send_header("Content-Type", tipo)
         self.send_header("Content-Length", str(len(contenido)))
         self.send_header("Cache-Control", "no-store")
+        if cookie is not None:
+            self.send_header("Set-Cookie", cookie)
         self.end_headers()
         self.wfile.write(contenido)
 
-    def _enviar_json(self, codigo, datos):
-        self._enviar(codigo, datos)
+    def _enviar_json(self, codigo, datos, cookie=None):
+        self._enviar(codigo, datos, cookie=cookie)
 
     def _enviar_error(self, codigo, mensaje):
         self._enviar_json(codigo, {"error": mensaje})
+
+    def _token_de_cookie(self):
+        """Lee el token de sesión de la cookie de la petición."""
+        for parte in self.headers.get("Cookie", "").split(";"):
+            nombre, _, valor = parte.strip().partition("=")
+            if nombre == COOKIE_SESION:
+                return valor
+        return None
+
+    def _usuario_actual(self):
+        """Devuelve el id del usuario autenticado o None."""
+        return services.usuario_de_token(self._token_de_cookie())
+
+    @staticmethod
+    def _cookie_sesion(token):
+        """Construye una cookie de sesión HttpOnly (SameSite=Lax)."""
+        if token is None:
+            return COOKIE_SESION + "=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+        return (
+            f"{COOKIE_SESION}={token}; Path=/; Max-Age=86400; "
+            "HttpOnly; SameSite=Lax"
+        )
 
     def _leer_json(self):
         """Lee el cuerpo de la petición y comprueba que sea un objeto JSON."""
@@ -99,13 +125,72 @@ class ManejadorAPI(BaseHTTPRequestHandler):
                 self._enviar_json(200, {"estado": "ok", "aplicacion": "Mis Gastos"})
                 return
 
+            if ruta in ("/api/registro", "/api/login"):
+                if metodo != "POST":
+                    self._enviar_error(405, "Método no permitido para esta ruta.")
+                    return
+                datos = self._leer_json()
+                if ruta == "/api/registro":
+                    usuario = services.crear_usuario(
+                        datos.get("nombre"), datos.get("contrasena")
+                    )
+                    sesion = services.iniciar_sesion(
+                        usuario["nombre"], datos.get("contrasena")
+                    )
+                    self._enviar_json(
+                        201,
+                        {"nombre": usuario["nombre"], "token": sesion["token"]},
+                        self._cookie_sesion(sesion["token"]),
+                    )
+                    return
+                sesion = services.iniciar_sesion(
+                    datos.get("nombre"), datos.get("contrasena")
+                )
+                self._enviar_json(
+                    200,
+                    {"nombre": sesion["nombre"], "token": sesion["token"]},
+                    self._cookie_sesion(sesion["token"]),
+                )
+                return
+
+            if ruta == "/api/sesion":
+                if metodo != "GET":
+                    self._enviar_error(405, "Método no permitido para esta ruta.")
+                    return
+                id_usuario = self._usuario_actual()
+                if id_usuario is None:
+                    self._enviar_json(200, {"autenticado": False})
+                    return
+                self._enviar_json(
+                    200,
+                    {
+                        "autenticado": True,
+                        "nombre": services.nombre_de_usuario(id_usuario),
+                    },
+                )
+                return
+
+            if ruta == "/api/logout":
+                if metodo != "POST":
+                    self._enviar_error(405, "Método no permitido para esta ruta.")
+                    return
+                services.cerrar_sesion(self._token_de_cookie())
+                self._enviar_json(200, {"mensaje": "Sesión cerrada."}, self._cookie_sesion(None))
+                return
+
+            id_usuario = self._usuario_actual()
+
             if ruta == "/api/gastos":
+                if id_usuario is None:
+                    self._enviar_error(401, "Inicia sesión para ver tus gastos.")
+                    return
                 if metodo == "GET":
                     filtro = parse_qs(partes.query).get("filtro", [""])[0]
-                    self._enviar_json(200, services.listar(filtro))
+                    self._enviar_json(200, services.listar(id_usuario, filtro))
                 elif metodo == "POST":
                     datos = self._leer_json()
                     gasto = services.crear(
+                        id_usuario,
                         datos.get("descripcion"),
                         datos.get("monto"),
                         datos.get("categoria"),
@@ -118,16 +203,20 @@ class ManejadorAPI(BaseHTTPRequestHandler):
 
             coincidencia = _RUTA_GASTO_ID.fullmatch(ruta)
             if coincidencia:
+                if id_usuario is None:
+                    self._enviar_error(401, "Inicia sesión para ver tus gastos.")
+                    return
                 try:
                     id_gasto = int(coincidencia.group(1))
                 except ValueError:
                     raise ValueError("El id del gasto debe ser un entero positivo.") from None
 
                 if metodo == "GET":
-                    self._enviar_json(200, services.obtener(id_gasto))
+                    self._enviar_json(200, services.obtener(id_usuario, id_gasto))
                 elif metodo == "PUT":
                     datos = self._leer_json()
                     gasto = services.actualizar(
+                        id_usuario,
                         id_gasto,
                         datos.get("descripcion"),
                         datos.get("monto"),
@@ -136,16 +225,19 @@ class ManejadorAPI(BaseHTTPRequestHandler):
                     )
                     self._enviar_json(200, gasto)
                 elif metodo == "DELETE":
-                    self._enviar_json(200, services.eliminar(id_gasto))
+                    self._enviar_json(200, services.eliminar(id_usuario, id_gasto))
                 else:
                     self._enviar_error(405, "Método no permitido para esta ruta.")
                 return
 
             if ruta == "/api/resumen":
+                if id_usuario is None:
+                    self._enviar_error(401, "Inicia sesión para ver tus gastos.")
+                    return
                 if metodo != "GET":
                     self._enviar_error(405, "Método no permitido para esta ruta.")
                     return
-                self._enviar_json(200, services.resumen())
+                self._enviar_json(200, services.resumen(id_usuario))
                 return
 
             self._enviar_error(404, "La ruta solicitada no existe.")

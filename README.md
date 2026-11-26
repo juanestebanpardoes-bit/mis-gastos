@@ -7,27 +7,49 @@ ningún paquete con `pip`.
 
 ## Cómo ejecutarla
 
-Desde esta carpeta:
+Desde esta carpeta (en Windows usa la ruta completa de Python; ver nota más abajo):
+
+```bash
+"C:\Users\juan\AppData\Local\Programs\Python\Python312\python.exe" app.py
+```
+
+O, si `python` te funciona en la terminal:
 
 ```bash
 python app.py
 ```
 
+Más fácil todavía: haz doble clic en **`iniciar.bat`**. Abrirá el navegador en
+la página y arrancará el servidor con el Python correcto.
+
 Abre <http://127.0.0.1:8000> en el navegador. La primera vez se crea
 automáticamente el archivo `datos.db` con 3 gastos de ejemplo. Para detener el
 servidor, pulsa `Ctrl+C`.
+
+> **Nota (importante en esta máquina):** el comando `python` puede mostrar el
+> error *"Python was not found... Microsoft Store"*. Es un alias de Windows que
+> no ejecuta tu Python real. Usa siempre la ruta completa indicada arriba o
+> selecciona ese intérprete en VS Code (`Ctrl+Shift+P` → *Python: Select
+> Interpreter* → `C:\Users\juan\AppData\Local\Programs\Python\Python312\python.exe`).
+> No hace falta instalar nada con `pip`.
 
 ### Desde Visual Studio Code
 
 1. Abre esta carpeta con `File > Open Folder...`.
 2. Instala la extensión oficial de **Python** (no necesitas instalar paquetes con `pip`).
-3. Selecciona el intérprete de Python 3.10+ y pulsa **F5** (configuración incluida
-   en `.vscode/launch.json`), o ejecuta `python app.py` en la terminal integrada.
+3. Selecciona el intérprete de Python 3.12 ubicado en
+   `C:\Users\juan\AppData\Local\Programs\Python\Python312\python.exe`.
+4. Pulsa **F5**: la configuración incluida en `.vscode/launch.json` ya apunta a
+   ese intérprete y arranca `app.py`. También puedes ejecutar en la terminal
+   integrada:
+   ```powershell
+   & "C:\Users\juan\AppData\Local\Programs\Python\Python312\python.exe" app.py
+   ```
 
 ## Cómo probarla
 
 ```bash
-python -m unittest -v
+"C:\Users\juan\AppData\Local\Programs\Python\Python312\python.exe" -m unittest -v
 ```
 
 Las pruebas usan una base de datos temporal y un servidor en un puerto libre,

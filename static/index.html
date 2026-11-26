@@ -696,7 +696,21 @@
     }
 
     async function pedir(ruta, opciones = {}) {
-      const respuesta = await fetch(API + ruta, opciones);
+      // Acepta tanto opciones de fetch como un objeto { metodo, cuerpo }.
+      let configuracion = opciones;
+      if (typeof opciones === "string" || opciones == null) {
+        configuracion = { method: opciones || "GET" };
+      } else if (opciones.metodo || opciones.cuerpo) {
+        configuracion = {
+          method: opciones.metodo || "GET",
+          headers: { "Content-Type": "application/json" },
+          body: opciones.cuerpo ? JSON.stringify(opciones.cuerpo) : undefined
+        };
+      }
+      if (!configuracion || typeof configuracion !== "object" || Array.isArray(configuracion)) {
+        configuracion = {};
+      }
+      const respuesta = await fetch(API + ruta, configuracion);
       let datos = null;
       try {
         datos = await respuesta.json();
@@ -922,7 +936,7 @@
       evento.preventDefault();
       const ruta = estado.modoAcceso === "login" ? "/login" : "/registro";
       try {
-        const datos = await pedir(ruta, "POST", cuerpoJSON({
+        const datos = await pedir(ruta, cuerpoJSON({
           nombre: $("usuario-acceso").value,
           contrasena: $("clave-acceso").value,
         }));
@@ -940,7 +954,7 @@
 
     $("salir").addEventListener("click", async () => {
       try {
-        await pedir("/logout", "POST", { headers: { "Content-Type": "application/json" } });
+        await pedir("/logout", { method: "POST" });
       } catch (error) {
         // Se cierra la sesión localmente aunque falle la petición.
       }

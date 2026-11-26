@@ -17,6 +17,13 @@ Abre <http://127.0.0.1:8000> en el navegador. La primera vez se crea
 automáticamente el archivo `datos.db` con 3 gastos de ejemplo. Para detener el
 servidor, pulsa `Ctrl+C`.
 
+### Desde Visual Studio Code
+
+1. Abre esta carpeta con `File > Open Folder...`.
+2. Instala la extensión oficial de **Python** (no necesitas instalar paquetes con `pip`).
+3. Selecciona el intérprete de Python 3.10+ y pulsa **F5** (configuración incluida
+   en `.vscode/launch.json`), o ejecuta `python app.py` en la terminal integrada.
+
 ## Cómo probarla
 
 ```bash
@@ -35,6 +42,7 @@ por lo que no modifican tus datos reales.
 | `app.py` | Servidor HTTP, página web y API REST en JSON. |
 | `static/index.html` | Interfaz en un solo archivo (HTML + CSS + JavaScript con `fetch`). |
 | `test_app.py` | Pruebas con `unittest` de servicios y de la API. |
+| `.vscode/launch.json` | Configuración para iniciar el servidor con F5 en VS Code. |
 | `.gitignore` | Ignora `*.db` y `__pycache__/`. |
 
 ## Entidad Gasto

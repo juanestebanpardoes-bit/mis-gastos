@@ -6,16 +6,16 @@
   <title>Mis Gastos · Controla tus finanzas</title>
   <style>
     :root {
-      --fondo: #f2f5fb;
+      --fondo: #fdf8ef;
       --tarjeta: #ffffff;
-      --texto: #19233b;
-      --suave: #6b7691;
-      --principal: #4f46e5;
-      --principal-claro: #eef2ff;
-      --borde: #e3e8f2;
-      --exito: #0f8a5f;
-      --error: #c62828;
-      --sombra: 0 12px 30px rgba(31, 41, 79, 0.08);
+      --texto: #14342b;
+      --suave: #6d7f76;
+      --principal: #008b5c;
+      --principal-claro: #e4f5ec;
+      --borde: #e6e2d6;
+      --exito: #008b5c;
+      --error: #c0392b;
+      --sombra: 0 12px 30px rgba(20, 52, 43, 0.08);
     }
 
     * { box-sizing: border-box; }
@@ -26,8 +26,8 @@
       font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--texto);
       background:
-        radial-gradient(circle at 10% 0%, #dfe7ff 0, transparent 35%),
-        radial-gradient(circle at 95% 10%, #e5f8f1 0, transparent 30%),
+        radial-gradient(circle at 10% 0%, #fbe8bf 0, transparent 35%),
+        radial-gradient(circle at 95% 10%, #d6f1e4 0, transparent 30%),
         var(--fondo);
     }
 
@@ -58,23 +58,39 @@
       width: 52px;
       height: 52px;
       border-radius: 16px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff;
+      background: linear-gradient(135deg, #f5b301, #e07b00);
+      color: #14342b;
       font-size: 26px;
-      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3);
+      box-shadow: 0 8px 18px rgba(224, 123, 0, 0.3);
     }
 
     h1 { margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
     .subtitulo { margin: 4px 0 0; color: var(--suave); font-size: 0.95rem; }
 
     .etiqueta-api {
-      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px 6px 14px;
       border-radius: 999px;
       background: var(--principal-claro);
       color: var(--principal);
       font-size: 0.85rem;
       font-weight: 600;
     }
+
+    .selector-idioma {
+      padding: 5px 9px;
+      border: 1px solid #b9d9c9;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--principal);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .selector-idioma:focus { box-shadow: 0 0 0 3px rgba(0, 139, 92, 0.15); outline: none; }
 
     .tarjeta {
       background: var(--tarjeta);
@@ -114,7 +130,7 @@
     }
 
     .tarjeta-resumen.destacado {
-      background: linear-gradient(135deg, #4f46e5, #6d5df0);
+      background: linear-gradient(135deg, #008b5c, #00694a);
       color: #fff;
       border-color: transparent;
     }
@@ -142,7 +158,7 @@
       padding: 11px 13px;
       border: 1px solid var(--borde);
       border-radius: 11px;
-      background: #fbfcff;
+      background: #fffdf8;
       color: var(--texto);
       font: inherit;
       font-size: 0.95rem;
@@ -152,7 +168,7 @@
     input:focus, select:focus {
       outline: none;
       border-color: var(--principal);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.13);
+      box-shadow: 0 0 0 3px rgba(0, 139, 92, 0.15);
     }
 
     .boton {
@@ -175,7 +191,7 @@
     .boton:hover { filter: brightness(1.07); transform: translateY(-1px); }
     .boton:active { transform: translateY(0); }
     .boton.secundario { background: var(--principal-claro); color: var(--principal); }
-    .boton.peligro { background: #feecec; color: var(--error); }
+    .boton.peligro { background: #fdeceb; color: var(--error); }
     .boton.pequeno { padding: 7px 11px; font-size: 0.82rem; }
     .ancho { width: 100%; }
 
@@ -208,7 +224,7 @@
     th, td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--borde); }
     th { color: var(--suave); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
     tbody tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: #fafbff; }
+    tbody tr:hover { background: #f7faf5; }
     .monto { font-weight: 700; white-space: nowrap; }
     .fecha { color: var(--suave); white-space: nowrap; }
     .acciones { display: flex; gap: 6px; }
@@ -222,11 +238,11 @@
       text-transform: capitalize;
     }
 
-    .comida { background: #fff1e6; color: #b45309; }
-    .transporte { background: #e6f0ff; color: #1d4ed8; }
-    .estudio { background: #f0e9ff; color: #6d28d9; }
-    .ocio { background: #e5f8f1; color: #0f766e; }
-    .otros { background: #eef1f6; color: #475569; }
+    .comida { background: #fff0cc; color: #946200; }
+    .transporte { background: #dff0ff; color: #1565a8; }
+    .estudio { background: #ece5ff; color: #6339b8; }
+    .ocio { background: #dcf3e6; color: #0a6b4a; }
+    .otros { background: #eeece5; color: #5c635d; }
 
     .vacio { text-align: center; color: var(--suave); padding: 32px 12px; }
 
@@ -275,67 +291,73 @@
       <div class="titulo">
         <div class="icono" aria-hidden="true">💳</div>
         <div>
-          <h1>Mis Gastos</h1>
-          <p class="subtitulo">Anota tus gastos y descubre adónde va tu dinero.</p>
+          <h1 data-i18n="titulo">Mis Gastos</h1>
+          <p class="subtitulo" data-i18n="subtitulo">Anota tus gastos y descubre adónde va tu dinero.</p>
         </div>
       </div>
-      <span class="etiqueta-api">API REST · SQLite</span>
+      <span class="etiqueta-api">
+        <span data-i18n="etiquetaApi">API REST · SQLite</span>
+        <select id="idioma" class="selector-idioma" aria-label="Idioma / Language">
+          <option value="es">🇨🇴 Español</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+      </span>
     </header>
 
     <section id="resumen" class="resumen" aria-label="Resumen de gastos"></section>
 
     <div class="columnas">
       <section class="tarjeta">
-        <h2>Nuevo gasto</h2>
-        <p class="ayuda">Completa los datos y pulsa en guardar.</p>
+        <h2 data-i18n="nuevoGasto">Nuevo gasto</h2>
+        <p class="ayuda" data-i18n="ayudaFormulario">Completa los datos y pulsa en guardar.</p>
         <form id="formulario">
           <div class="campo">
-            <label for="descripcion">Descripción</label>
+            <label for="descripcion" data-i18n="descripcion">Descripción</label>
             <input id="descripcion" name="descripcion" type="text" maxlength="140"
-                   placeholder="Ej. Almuerzo con amigos" required>
+                   data-i18n-placeholder="placeholderDescripcion" placeholder="Ej. Almuerzo con amigos" required>
           </div>
           <div class="campo">
-            <label for="monto">Monto (€)</label>
+            <label for="monto" data-i18n="monto">Monto (COP)</label>
             <input id="monto" name="monto" type="number" min="0.01" step="0.01"
                    placeholder="0.00" required>
           </div>
           <div class="campo">
-            <label for="categoria">Categoría</label>
+            <label for="categoria" data-i18n="categoria">Categoría</label>
             <select id="categoria" name="categoria" required>
-              <option value="comida">Comida</option>
-              <option value="transporte">Transporte</option>
-              <option value="estudio">Estudio</option>
-              <option value="ocio">Ocio</option>
-              <option value="otros">Otros</option>
+              <option value="comida" data-i18n="comida">Comida</option>
+              <option value="transporte" data-i18n="transporte">Transporte</option>
+              <option value="estudio" data-i18n="estudio">Estudio</option>
+              <option value="ocio" data-i18n="ocio">Ocio</option>
+              <option value="otros" data-i18n="otros">Otros</option>
             </select>
           </div>
           <div class="campo">
-            <label for="fecha">Fecha</label>
+            <label for="fecha" data-i18n="fecha">Fecha</label>
             <input id="fecha" name="fecha" type="date" required>
           </div>
-          <button class="boton ancho" type="submit">＋ Añadir gasto</button>
+          <button class="boton ancho" type="submit" data-i18n="anadir">＋ Añadir gasto</button>
         </form>
       </section>
 
       <section class="tarjeta">
-        <h2>Mis movimientos</h2>
-        <p class="ayuda">Busca, edita o elimina cualquiera de tus gastos.</p>
+        <h2 data-i18n="movimientos">Mis movimientos</h2>
+        <p class="ayuda" data-i18n="ayudaMovimientos">Busca, edita o elimina cualquiera de tus gastos.</p>
         <div class="barra">
           <div class="buscador">
-            <input id="buscador" type="search" placeholder="Buscar por descripción o categoría..."
+            <input id="buscador" type="search" data-i18n-placeholder="placeholderBuscar" placeholder="Buscar por descripción o categoría..."
                    aria-label="Buscar gastos">
           </div>
-          <button id="recargar" class="boton secundario" type="button">↻ Actualizar</button>
+          <button id="recargar" class="boton secundario" type="button" data-i18n="actualizar">↻ Actualizar</button>
         </div>
         <div class="tabla-contenedor">
           <table>
             <thead>
               <tr>
-                <th>Descripción</th>
-                <th>Categoría</th>
-                <th>Monto</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
+                <th data-i18n="descripcion">Descripción</th>
+                <th data-i18n="categoria">Categoría</th>
+                <th data-i18n="monto">Monto</th>
+                <th data-i18n="fecha">Fecha</th>
+                <th data-i18n="acciones">Acciones</th>
               </tr>
             </thead>
             <tbody id="cuerpo-tabla"></tbody>
@@ -347,33 +369,33 @@
 
   <dialog id="modal-editar">
     <form id="formulario-editar">
-      <h2>Editar gasto</h2>
-      <p class="ayuda">Modifica los datos y guarda los cambios.</p>
+      <h2 data-i18n="editarGasto">Editar gasto</h2>
+      <p class="ayuda" data-i18n="ayudaEditar">Modifica los datos y guarda los cambios.</p>
       <div class="campo">
-        <label for="editar-descripcion">Descripción</label>
+        <label for="editar-descripcion" data-i18n="descripcion">Descripción</label>
         <input id="editar-descripcion" type="text" maxlength="140" required>
       </div>
       <div class="campo">
-        <label for="editar-monto">Monto (€)</label>
+        <label for="editar-monto" data-i18n="monto">Monto (COP)</label>
         <input id="editar-monto" type="number" min="0.01" step="0.01" required>
       </div>
       <div class="campo">
-        <label for="editar-categoria">Categoría</label>
+        <label for="editar-categoria" data-i18n="categoria">Categoría</label>
         <select id="editar-categoria" required>
-          <option value="comida">Comida</option>
-          <option value="transporte">Transporte</option>
-          <option value="estudio">Estudio</option>
-          <option value="ocio">Ocio</option>
-          <option value="otros">Otros</option>
+          <option value="comida" data-i18n="comida">Comida</option>
+          <option value="transporte" data-i18n="transporte">Transporte</option>
+          <option value="estudio" data-i18n="estudio">Estudio</option>
+          <option value="ocio" data-i18n="ocio">Ocio</option>
+          <option value="otros" data-i18n="otros">Otros</option>
         </select>
       </div>
       <div class="campo">
-        <label for="editar-fecha">Fecha</label>
+        <label for="editar-fecha" data-i18n="fecha">Fecha</label>
         <input id="editar-fecha" type="date" required>
       </div>
       <div class="botones-modal">
-        <button id="cancelar-editar" class="boton secundario" type="button">Cancelar</button>
-        <button class="boton" type="submit">Guardar cambios</button>
+        <button id="cancelar-editar" class="boton secundario" type="button" data-i18n="cancelar">Cancelar</button>
+        <button class="boton" type="submit" data-i18n="guardarCambios">Guardar cambios</button>
       </div>
     </form>
   </dialog>
@@ -385,12 +407,115 @@
 
     const API = "/api";
     const CATEGORIAS = ["comida", "transporte", "estudio", "ocio", "otros"];
-    const estado = { gastos: [], editandoId: null, temporizadorMensaje: null };
+
+    // Diccionario de textos de la interfaz en español e inglés.
+    const TEXTOS = {
+      es: {
+        titulo: "Mis Gastos",
+        subtitulo: "Anota tus gastos y descubre adónde va tu dinero.",
+        etiquetaApi: "API REST · SQLite",
+        nuevoGasto: "Nuevo gasto",
+        ayudaFormulario: "Completa los datos y pulsa en guardar.",
+        descripcion: "Descripción",
+        placeholderDescripcion: "Ej. Almuerzo con amigos",
+        monto: "Monto (COP)",
+        categoria: "Categoría",
+        comida: "Comida",
+        transporte: "Transporte",
+        estudio: "Estudio",
+        ocio: "Ocio",
+        otros: "Otros",
+        fecha: "Fecha",
+        anadir: "＋ Añadir gasto",
+        movimientos: "Mis movimientos",
+        ayudaMovimientos: "Busca, edita o elimina cualquiera de tus gastos.",
+        placeholderBuscar: "Buscar por descripción o categoría...",
+        actualizar: "↻ Actualizar",
+        acciones: "Acciones",
+        editar: "Editar",
+        eliminar: "Eliminar",
+        editarGasto: "Editar gasto",
+        ayudaEditar: "Modifica los datos y guarda los cambios.",
+        cancelar: "Cancelar",
+        guardarCambios: "Guardar cambios",
+        totalGastado: "Total gastado",
+        vacio: "No hay gastos que coincidan con la búsqueda.",
+        guardado: "Gasto guardado correctamente.",
+        actualizado: "Gasto actualizado correctamente.",
+        eliminado: "Gasto eliminado correctamente.",
+        confirmar: '¿Eliminar el gasto "' + "{nombre}" + '"?',
+        locale: "es-CO"
+      },
+      en: {
+        titulo: "My Expenses",
+        subtitulo: "Track your spending and see where your money goes.",
+        etiquetaApi: "REST API · SQLite",
+        nuevoGasto: "New expense",
+        ayudaFormulario: "Fill in the details and click save.",
+        descripcion: "Description",
+        placeholderDescripcion: "E.g. Lunch with friends",
+        monto: "Amount (COP)",
+        categoria: "Category",
+        comida: "Food",
+        transporte: "Transport",
+        estudio: "Education",
+        ocio: "Entertainment",
+        otros: "Other",
+        fecha: "Date",
+        anadir: "＋ Add expense",
+        movimientos: "My transactions",
+        ayudaMovimientos: "Search, edit or delete any of your expenses.",
+        placeholderBuscar: "Search by description or category...",
+        actualizar: "↻ Refresh",
+        acciones: "Actions",
+        editar: "Edit",
+        eliminar: "Delete",
+        editarGasto: "Edit expense",
+        ayudaEditar: "Change the details and save your changes.",
+        cancelar: "Cancel",
+        guardarCambios: "Save changes",
+        totalGastado: "Total spent",
+        vacio: "No expenses match your search.",
+        guardado: "Expense saved successfully.",
+        actualizado: "Expense updated successfully.",
+        eliminado: "Expense deleted successfully.",
+        confirmar: 'Delete the expense "' + "{nombre}" + '"?',
+        locale: "en-US"
+      }
+    };
+
+    const estado = {
+      gastos: [],
+      editandoId: null,
+      temporizadorMensaje: null,
+      idioma: localStorage.getItem("misgastos-idioma") === "en" ? "en" : "es"
+    };
 
     const $ = (id) => document.getElementById(id);
-    const formatoDinero = new Intl.NumberFormat("es-ES", {
-      style: "currency", currency: "EUR"
-    });
+    const t = (clave) => TEXTOS[estado.idioma][clave];
+
+    function formatoDinero() {
+      return new Intl.NumberFormat(t("locale"), {
+        style: "currency", currency: "COP", maximumFractionDigits: 0
+      });
+    }
+
+    // Aplica todos los textos traducibles a la página.
+    function aplicarIdioma() {
+      document.documentElement.lang = estado.idioma;
+      $("idioma").value = estado.idioma;
+      document.querySelectorAll("[data-i18n]").forEach((elemento) => {
+        elemento.textContent = t(elemento.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((elemento) => {
+        elemento.placeholder = t(elemento.dataset.i18nPlaceholder);
+      });
+      $("resumen").setAttribute("aria-label", estado.idioma === "es" ? "Resumen de gastos" : "Expense summary");
+      $("buscador").setAttribute("aria-label", estado.idioma === "es" ? "Buscar gastos" : "Search expenses");
+      $("idioma").setAttribute("aria-label", estado.idioma === "es" ? "Idioma" : "Language");
+      renderizarResumen(estado.resumen);
+      renderizarTabla();
+    }
 
     // Escapa cualquier texto que se vaya a insertar en el HTML.
     function escapar(valor) {
@@ -401,7 +526,7 @@
     }
 
     function dinero(valor) {
-      return formatoDinero.format(Number(valor) || 0);
+      return formatoDinero().format(Number(valor) || 0);
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -438,7 +563,7 @@
     function renderizarResumen(resumen) {
       const tarjetas = [`
         <div class="tarjeta-resumen destacado">
-          <span class="etiqueta-resumen">Total gastado</span>
+          <span class="etiqueta-resumen">${escapar(t("totalGastado"))}</span>
           <strong class="valor-resumen">${dinero(resumen.total)}</strong>
         </div>
       `];
@@ -446,7 +571,7 @@
         const valor = resumen.por_categoria[categoria] || 0;
         tarjetas.push(`
           <div class="tarjeta-resumen">
-            <span class="etiqueta-resumen">${escapar(categoria)}</span>
+            <span class="etiqueta-resumen">${escapar(t(categoria))}</span>
             <strong class="valor-resumen">${dinero(valor)}</strong>
           </div>
         `);
@@ -457,19 +582,19 @@
     function renderizarTabla() {
       const cuerpo = $("cuerpo-tabla");
       if (estado.gastos.length === 0) {
-        cuerpo.innerHTML = '<tr><td class="vacio" colspan="5">No hay gastos que coincidan con la búsqueda.</td></tr>';
+        cuerpo.innerHTML = '<tr><td class="vacio" colspan="5">' + escapar(t("vacio")) + '</td></tr>';
         return;
       }
       cuerpo.innerHTML = estado.gastos.map((gasto) => `
         <tr>
           <td>${escapar(gasto.descripcion)}</td>
-          <td><span class="badge ${escapar(gasto.categoria)}">${escapar(gasto.categoria)}</span></td>
+          <td><span class="badge ${escapar(gasto.categoria)}">${escapar(t(gasto.categoria))}</span></td>
           <td class="monto">${dinero(gasto.monto)}</td>
           <td class="fecha">${escapar(gasto.fecha)}</td>
           <td>
             <div class="acciones">
-              <button class="boton secundario pequeño" type="button" data-accion="editar" data-id="${escapar(gasto.id)}">Editar</button>
-              <button class="boton peligro pequeño" type="button" data-accion="eliminar" data-id="${escapar(gasto.id)}">Eliminar</button>
+              <button class="boton secundario pequeno" type="button" data-accion="editar" data-id="${escapar(gasto.id)}">${escapar(t("editar"))}</button>
+              <button class="boton peligro pequeno" type="button" data-accion="eliminar" data-id="${escapar(gasto.id)}">${escapar(t("eliminar"))}</button>
             </div>
           </td>
         </tr>
@@ -485,6 +610,7 @@
           pedir("/resumen")
         ]);
         estado.gastos = gastos;
+        estado.resumen = resumen;
         renderizarTabla();
         renderizarResumen(resumen);
       } catch (error) {
@@ -509,7 +635,7 @@
         await pedir("/gastos", opciones);
         $("formulario").reset();
         $("fecha").valueAsDate = new Date();
-        mostrarMensaje("Gasto guardado correctamente.", "exito");
+        mostrarMensaje(t("guardado"), "exito");
         await cargarDatos();
       } catch (error) {
         mostrarMensaje(error.message, "error");
@@ -533,7 +659,7 @@
         await pedir("/gastos/" + estado.editandoId, opciones);
         $("modal-editar").close();
         estado.editandoId = null;
-        mostrarMensaje("Gasto actualizado correctamente.", "exito");
+        mostrarMensaje(t("actualizado"), "exito");
         await cargarDatos();
       } catch (error) {
         mostrarMensaje(error.message, "error");
@@ -557,10 +683,10 @@
         return;
       }
 
-      if (window.confirm('¿Eliminar el gasto "' + gasto.descripcion + '"?')) {
+      if (window.confirm(t("confirmar").replace("{nombre}", gasto.descripcion))) {
         try {
           await pedir("/gastos/" + id, { method: "DELETE" });
-          mostrarMensaje("Gasto eliminado correctamente.", "exito");
+          mostrarMensaje(t("eliminado"), "exito");
           await cargarDatos();
         } catch (error) {
           mostrarMensaje(error.message, "error");
@@ -576,8 +702,15 @@
 
     $("recargar").addEventListener("click", cargarDatos);
 
-    // Inicio: fecha de hoy y primera carga desde la API.
+    $("idioma").addEventListener("change", (evento) => {
+      estado.idioma = evento.target.value === "en" ? "en" : "es";
+      localStorage.setItem("misgastos-idioma", estado.idioma);
+      aplicarIdioma();
+    });
+
+    // Inicio: fecha de hoy, idioma guardado y primera carga desde la API.
     $("fecha").valueAsDate = new Date();
+    aplicarIdioma();
     cargarDatos();
   </script>
 </body>

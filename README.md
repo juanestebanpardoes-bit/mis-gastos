@@ -1,6 +1,10 @@
 # Mis Gastos
 
 Aplicación web para registrar gastos personales y ver cuánto se gasta por categoría.
+Los valores se muestran en **pesos colombianos (COP)** y la interfaz permite
+cambiar entre **español e inglés** con el selector de la esquina superior derecha
+(la elección se recuerda en el navegador). El color verde y el amarillo de la
+interfaz están inspirados en la bandera de Colombia.
 Está hecha **desde cero con Python 3.10+ y solo la biblioteca estándar**: usa
 `sqlite3` como base de datos y `http.server` como servidor. No hay que instalar
 ningún paquete con `pip`.

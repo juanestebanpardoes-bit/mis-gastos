@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Gastos · Controla tus finanzas</title>
+  <style>
+    :root {
+      --fondo: #f2f5fb;
+      --tarjeta: #ffffff;
+      --texto: #19233b;
+      --suave: #6b7691;
+      --principal: #4f46e5;
+      --principal-claro: #eef2ff;
+      --borde: #e3e8f2;
+      --exito: #0f8a5f;
+      --error: #c62828;
+      --sombra: 0 12px 30px rgba(31, 41, 79, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--texto);
+      background:
+        radial-gradient(circle at 10% 0%, #dfe7ff 0, transparent 35%),
+        radial-gradient(circle at 95% 10%, #e5f8f1 0, transparent 30%),
+        var(--fondo);
+    }
+
+    .contenedor {
+      width: min(1120px, 92%);
+      margin: 0 auto;
+      padding: 36px 0 60px;
+    }
+
+    header.cabecera {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .titulo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icono {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      font-size: 26px;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.3);
+    }
+
+    h1 { margin: 0; font-size: 2rem; letter-spacing: -0.02em; }
+    .subtitulo { margin: 4px 0 0; color: var(--suave); font-size: 0.95rem; }
+
+    .etiqueta-api {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--principal-claro);
+      color: var(--principal);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .tarjeta {
+      background: var(--tarjeta);
+      border: 1px solid var(--borde);
+      border-radius: 20px;
+      box-shadow: var(--sombra);
+      padding: 24px;
+    }
+
+    .resumen {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .tarjeta-resumen {
+      position: relative;
+      overflow: hidden;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--tarjeta);
+      border: 1px solid var(--borde);
+      box-shadow: var(--sombra);
+    }
+
+    .tarjeta-resumen::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      top: -18px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--principal-claro);
+      opacity: 0.7;
+    }
+
+    .tarjeta-resumen.destacado {
+      background: linear-gradient(135deg, #4f46e5, #6d5df0);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .tarjeta-resumen.destacado::after { background: rgba(255, 255, 255, 0.18); }
+
+    .etiqueta-resumen { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; }
+    .valor-resumen { display: block; margin-top: 8px; font-size: 1.55rem; font-weight: 700; }
+
+    .columnas {
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    h2 { margin: 0 0 6px; font-size: 1.2rem; }
+    .ayuda { margin: 0 0 20px; color: var(--suave); font-size: 0.88rem; }
+
+    label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; }
+    .campo { margin-bottom: 16px; }
+
+    input, select {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid var(--borde);
+      border-radius: 11px;
+      background: #fbfcff;
+      color: var(--texto);
+      font: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--principal);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.13);
+    }
+
+    .boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px 17px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--principal);
+      color: #fff;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.12s, filter 0.12s;
+    }
+
+    .boton:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .boton:active { transform: translateY(0); }
+    .boton.secundario { background: var(--principal-claro); color: var(--principal); }
+    .boton.peligro { background: #feecec; color: var(--error); }
+    .boton.pequeno { padding: 7px 11px; font-size: 0.82rem; }
+    .ancho { width: 100%; }
+
+    .barra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .buscador { position: relative; flex: 1 1 240px; }
+    .buscador input { padding-left: 38px; }
+
+    .buscador::before {
+      content: "⌕";
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-54%);
+      color: var(--suave);
+      font-size: 20px;
+      pointer-events: none;
+    }
+
+    .tabla-contenedor { overflow-x: auto; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--borde); }
+    th { color: var(--suave); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fafbff; }
+    .monto { font-weight: 700; white-space: nowrap; }
+    .fecha { color: var(--suave); white-space: nowrap; }
+    .acciones { display: flex; gap: 6px; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .comida { background: #fff1e6; color: #b45309; }
+    .transporte { background: #e6f0ff; color: #1d4ed8; }
+    .estudio { background: #f0e9ff; color: #6d28d9; }
+    .ocio { background: #e5f8f1; color: #0f766e; }
+    .otros { background: #eef1f6; color: #475569; }
+
+    .vacio { text-align: center; color: var(--suave); padding: 32px 12px; }
+
+    #mensaje {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      max-width: min(360px, 90vw);
+      padding: 13px 18px;
+      border-radius: 12px;
+      box-shadow: 0 12px 28px rgba(20, 30, 60, 0.2);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 30;
+    }
+
+    #mensaje.visible { opacity: 1; transform: translateY(0); }
+    #mensaje.exito { background: var(--exito); }
+    #mensaje.error { background: var(--error); }
+
+    dialog {
+      width: min(440px, 92%);
+      border: 0;
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 24px 60px rgba(20, 30, 60, 0.28);
+    }
+
+    dialog::backdrop { background: rgba(22, 30, 54, 0.5); }
+    .botones-modal { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+    @media (max-width: 860px) {
+      .columnas { grid-template-columns: 1fr; }
+      .contenedor { padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="contenedor">
+    <header class="cabecera">
+      <div class="titulo">
+        <div class="icono" aria-hidden="true">💳</div>
+        <div>
+          <h1>Mis Gastos</h1>
+          <p class="subtitulo">Anota tus gastos y descubre adónde va tu dinero.</p>
+        </div>
+      </div>
+      <span class="etiqueta-api">API REST · SQLite</span>
+    </header>
+
+    <section id="resumen" class="resumen" aria-label="Resumen de gastos"></section>
+
+    <div class="columnas">
+      <section class="tarjeta">
+        <h2>Nuevo gasto</h2>
+        <p class="ayuda">Completa los datos y pulsa en guardar.</p>
+        <form id="formulario">
+          <div class="campo">
+            <label for="descripcion">Descripción</label>
+            <input id="descripcion" name="descripcion" type="text" maxlength="140"
+                   placeholder="Ej. Almuerzo con amigos" required>
+          </div>
+          <div class="campo">
+            <label for="monto">Monto (€)</label>
+            <input id="monto" name="monto" type="number" min="0.01" step="0.01"
+                   placeholder="0.00" required>
+          </div>
+          <div class="campo">
+            <label for="categoria">Categoría</label>
+            <select id="categoria" name="categoria" required>
+              <option value="comida">Comida</option>
+              <option value="transporte">Transporte</option>
+              <option value="estudio">Estudio</option>
+              <option value="ocio">Ocio</option>
+              <option value="otros">Otros</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="fecha">Fecha</label>
+            <input id="fecha" name="fecha" type="date" required>
+          </div>
+          <button class="boton ancho" type="submit">＋ Añadir gasto</button>
+        </form>
+      </section>
+
+      <section class="tarjeta">
+        <h2>Mis movimientos</h2>
+        <p class="ayuda">Busca, edita o elimina cualquiera de tus gastos.</p>
+        <div class="barra">
+          <div class="buscador">
+            <input id="buscador" type="search" placeholder="Buscar por descripción o categoría..."
+                   aria-label="Buscar gastos">
+          </div>
+          <button id="recargar" class="boton secundario" type="button">↻ Actualizar</button>
+        </div>
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-tabla"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <dialog id="modal-editar">
+    <form id="formulario-editar">
+      <h2>Editar gasto</h2>
+      <p class="ayuda">Modifica los datos y guarda los cambios.</p>
+      <div class="campo">
+        <label for="editar-descripcion">Descripción</label>
+        <input id="editar-descripcion" type="text" maxlength="140" required>
+      </div>
+      <div class="campo">
+        <label for="editar-monto">Monto (€)</label>
+        <input id="editar-monto" type="number" min="0.01" step="0.01" required>
+      </div>
+      <div class="campo">
+        <label for="editar-categoria">Categoría</label>
+        <select id="editar-categoria" required>
+          <option value="comida">Comida</option>
+          <option value="transporte">Transporte</option>
+          <option value="estudio">Estudio</option>
+          <option value="ocio">Ocio</option>
+          <option value="otros">Otros</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="editar-fecha">Fecha</label>
+        <input id="editar-fecha" type="date" required>
+      </div>
+      <div class="botones-modal">
+        <button id="cancelar-editar" class="boton secundario" type="button">Cancelar</button>
+        <button class="boton" type="submit">Guardar cambios</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="mensaje" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    const API = "/api";
+    const CATEGORIAS = ["comida", "transporte", "estudio", "ocio", "otros"];
+    const estado = { gastos: [], editandoId: null, temporizadorMensaje: null };
+
+    const $ = (id) => document.getElementById(id);
+    const formatoDinero = new Intl.NumberFormat("es-ES", {
+      style: "currency", currency: "EUR"
+    });
+
+    // Escapa cualquier texto que se vaya a insertar en el HTML.
+    function escapar(valor) {
+      const sustituciones = {
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      };
+      return String(valor ?? "").replace(/[&<>"']/g, (caracter) => sustituciones[caracter]);
+    }
+
+    function dinero(valor) {
+      return formatoDinero.format(Number(valor) || 0);
+    }
+
+    function mostrarMensaje(texto, tipo) {
+      const aviso = $("mensaje");
+      aviso.textContent = texto;               // textContent evita inyección de HTML.
+      aviso.className = "visible " + tipo;
+      clearTimeout(estado.temporizadorMensaje);
+      estado.temporizadorMensaje = setTimeout(() => { aviso.className = ""; }, 3600);
+    }
+
+    async function pedir(ruta, opciones = {}) {
+      const respuesta = await fetch(API + ruta, opciones);
+      let datos = null;
+      try {
+        datos = await respuesta.json();
+      } catch (error) {
+        datos = null;
+      }
+      if (!respuesta.ok) {
+        const detalle = datos && datos.error ? datos.error : "Error " + respuesta.status;
+        throw new Error(detalle);
+      }
+      return datos;
+    }
+
+    function cuerpoJSON(datos) {
+      return {
+        method: datos ? "POST" : "GET",
+        headers: { "Content-Type": "application/json" },
+        body: datos ? JSON.stringify(datos) : undefined
+      };
+    }
+
+    function renderizarResumen(resumen) {
+      const tarjetas = [`
+        <div class="tarjeta-resumen destacado">
+          <span class="etiqueta-resumen">Total gastado</span>
+          <strong class="valor-resumen">${dinero(resumen.total)}</strong>
+        </div>
+      `];
+      for (const categoria of CATEGORIAS) {
+        const valor = resumen.por_categoria[categoria] || 0;
+        tarjetas.push(`
+          <div class="tarjeta-resumen">
+            <span class="etiqueta-resumen">${escapar(categoria)}</span>
+            <strong class="valor-resumen">${dinero(valor)}</strong>
+          </div>
+        `);
+      }
+      $("resumen").innerHTML = tarjetas.join("");
+    }
+
+    function renderizarTabla() {
+      const cuerpo = $("cuerpo-tabla");
+      if (estado.gastos.length === 0) {
+        cuerpo.innerHTML = '<tr><td class="vacio" colspan="5">No hay gastos que coincidan con la búsqueda.</td></tr>';
+        return;
+      }
+      cuerpo.innerHTML = estado.gastos.map((gasto) => `
+        <tr>
+          <td>${escapar(gasto.descripcion)}</td>
+          <td><span class="badge ${escapar(gasto.categoria)}">${escapar(gasto.categoria)}</span></td>
+          <td class="monto">${dinero(gasto.monto)}</td>
+          <td class="fecha">${escapar(gasto.fecha)}</td>
+          <td>
+            <div class="acciones">
+              <button class="boton secundario pequeño" type="button" data-accion="editar" data-id="${escapar(gasto.id)}">Editar</button>
+              <button class="boton peligro pequeño" type="button" data-accion="eliminar" data-id="${escapar(gasto.id)}">Eliminar</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function cargarDatos() {
+      const filtro = $("buscador").value.trim();
+      const consulta = filtro ? "?filtro=" + encodeURIComponent(filtro) : "";
+      try {
+        const [gastos, resumen] = await Promise.all([
+          pedir("/gastos" + consulta),
+          pedir("/resumen")
+        ]);
+        estado.gastos = gastos;
+        renderizarTabla();
+        renderizarResumen(resumen);
+      } catch (error) {
+        mostrarMensaje(error.message, "error");
+      }
+    }
+
+    function datosDelFormulario(prefijo) {
+      return {
+        descripcion: $(prefijo + "descripcion").value,
+        monto: Number($(prefijo + "monto").value),
+        categoria: $(prefijo + "categoria").value,
+        fecha: $(prefijo + "fecha").value
+      };
+    }
+
+    $("formulario").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      try {
+        const opciones = cuerpoJSON(datosDelFormulario(""));
+        opciones.method = "POST";
+        await pedir("/gastos", opciones);
+        $("formulario").reset();
+        $("fecha").valueAsDate = new Date();
+        mostrarMensaje("Gasto guardado correctamente.", "exito");
+        await cargarDatos();
+      } catch (error) {
+        mostrarMensaje(error.message, "error");
+      }
+    });
+
+    function abrirEdicion(gasto) {
+      estado.editandoId = gasto.id;
+      $("editar-descripcion").value = gasto.descripcion;
+      $("editar-monto").value = gasto.monto;
+      $("editar-categoria").value = gasto.categoria;
+      $("editar-fecha").value = gasto.fecha;
+      $("modal-editar").showModal();
+    }
+
+    $("formulario-editar").addEventListener("submit", async (evento) => {
+      evento.preventDefault();
+      try {
+        const opciones = cuerpoJSON(datosDelFormulario("editar-"));
+        opciones.method = "PUT";
+        await pedir("/gastos/" + estado.editandoId, opciones);
+        $("modal-editar").close();
+        estado.editandoId = null;
+        mostrarMensaje("Gasto actualizado correctamente.", "exito");
+        await cargarDatos();
+      } catch (error) {
+        mostrarMensaje(error.message, "error");
+      }
+    });
+
+    $("cancelar-editar").addEventListener("click", () => {
+      $("modal-editar").close();
+      estado.editandoId = null;
+    });
+
+    $("cuerpo-tabla").addEventListener("click", async (evento) => {
+      const boton = evento.target.closest("button[data-accion]");
+      if (!boton) return;
+      const id = Number(boton.dataset.id);
+      const gasto = estado.gastos.find((item) => item.id === id);
+      if (!gasto) return;
+
+      if (boton.dataset.accion === "editar") {
+        abrirEdicion(gasto);
+        return;
+      }
+
+      if (window.confirm('¿Eliminar el gasto "' + gasto.descripcion + '"?')) {
+        try {
+          await pedir("/gastos/" + id, { method: "DELETE" });
+          mostrarMensaje("Gasto eliminado correctamente.", "exito");
+          await cargarDatos();
+        } catch (error) {
+          mostrarMensaje(error.message, "error");
+        }
+      }
+    });
+
+    let esperaBusqueda = null;
+    $("buscador").addEventListener("input", () => {
+      clearTimeout(esperaBusqueda);
+      esperaBusqueda = setTimeout(cargarDatos, 250);
+    });
+
+    $("recargar").addEventListener("click", cargarDatos);
+
+    // Inicio: fecha de hoy y primera carga desde la API.
+    $("fecha").valueAsDate = new Date();
+    cargarDatos();
+  </script>
+</body>
+</html>

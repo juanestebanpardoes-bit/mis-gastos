@@ -1,9 +1,13 @@
 # Mis Gastos
 
 Aplicación web para registrar gastos personales y ver cuánto se gasta por categoría.
-Los valores se muestran en **pesos colombianos (COP)** y la interfaz permite
-cambiar entre **español e inglés** con el selector de la esquina superior derecha
-(la elección se recuerda en el navegador). El color verde y el amarillo de la
+Los valores se guardan en **pesos colombianos (COP)** y se pueden visualizar en
+**COP, dólares (USD) o euros (EUR)** con el selector de moneda de la esquina
+superior derecha. Las tasas son de referencia fijas (1 USD = 4.000 COP,
+1 EUR = 4.300 COP); al crear o editar un gasto, el valor introducido en la
+moneda elegida se convierte a COP antes de guardarse, respetando el mínimo de
+100 COP. La interfaz también permite cambiar entre **español e inglés**, y ambas
+elecciones se recuerdan en el navegador. El color verde y el amarillo de la
 interfaz están inspirados en la bandera de Colombia.
 Está hecha **desde cero con Python 3.10+ y solo la biblioteca estándar**: usa
 `sqlite3` como base de datos y `http.server` como servidor. No hay que instalar

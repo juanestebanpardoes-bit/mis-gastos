@@ -152,6 +152,7 @@
 
     label { display: block; margin-bottom: 6px; font-size: 0.85rem; font-weight: 600; }
     .campo { margin-bottom: 16px; }
+    .ayuda-monto { display: block; margin-top: 5px; color: var(--suave); font-size: 0.78rem; }
 
     input, select {
       width: 100%;
@@ -297,6 +298,11 @@
       </div>
       <span class="etiqueta-api">
         <span data-i18n="etiquetaApi">API REST · SQLite</span>
+        <select id="moneda" class="selector-idioma" aria-label="Moneda / Currency">
+          <option value="COP">🇨🇴 COP</option>
+          <option value="USD">🇺🇸 USD</option>
+          <option value="EUR">🇪🇺 EUR</option>
+        </select>
         <select id="idioma" class="selector-idioma" aria-label="Idioma / Language">
           <option value="es">🇨🇴 Español</option>
           <option value="en">🇬🇧 English</option>
@@ -317,9 +323,10 @@
                    data-i18n-placeholder="placeholderDescripcion" placeholder="Ej. Almuerzo con amigos" required>
           </div>
           <div class="campo">
-            <label for="monto" data-i18n="monto">Monto (COP)</label>
+            <label for="monto" id="etiqueta-monto">Monto (COP)</label>
             <input id="monto" name="monto" type="number" min="100" step="1"
                    placeholder="100" required>
+            <small id="ayuda-monto" class="ayuda-monto"></small>
           </div>
           <div class="campo">
             <label for="categoria" data-i18n="categoria">Categoría</label>
@@ -376,8 +383,9 @@
         <input id="editar-descripcion" type="text" maxlength="140" required>
       </div>
       <div class="campo">
-        <label for="editar-monto" data-i18n="monto">Monto (COP)</label>
+        <label for="editar-monto" id="etiqueta-editar-monto">Monto (COP)</label>
         <input id="editar-monto" type="number" min="100" step="1" required>
+        <small id="ayuda-editar-monto" class="ayuda-monto"></small>
       </div>
       <div class="campo">
         <label for="editar-categoria" data-i18n="categoria">Categoría</label>
@@ -407,6 +415,14 @@
 
     const API = "/api";
     const CATEGORIAS = ["comida", "transporte", "estudio", "ocio", "otros"];
+
+    // Tasas de referencia fijas: los gastos se guardan siempre en COP.
+    // 1 USD = 4.000 COP, 1 EUR = 4.300 COP (aproximadas).
+    const MONEDAS = {
+      COP: { tasa: 1, simbolo: "$", locale: "es-CO", decimales: 0 },
+      USD: { tasa: 4000, simbolo: "$", locale: "en-US", decimales: 2 },
+      EUR: { tasa: 4300, simbolo: "€", locale: "es-ES", decimales: 2 }
+    };
 
     // Diccionario de textos de la interfaz en español e inglés.
     const TEXTOS = {
@@ -444,7 +460,8 @@
         actualizado: "Gasto actualizado correctamente.",
         eliminado: "Gasto eliminado correctamente.",
         confirmar: '¿Eliminar el gasto "' + "{nombre}" + '"?',
-        locale: "es-CO"
+        ayudaConversion: "Los valores se guardan en pesos colombianos (COP). Mínimo: $ 100 COP.",
+        monedaCambiada: "Moneda cambiada a"
       },
       en: {
         titulo: "My Expenses",
@@ -480,23 +497,39 @@
         actualizado: "Expense updated successfully.",
         eliminado: "Expense deleted successfully.",
         confirmar: 'Delete the expense "' + "{nombre}" + '"?',
-        locale: "en-US"
+        ayudaConversion: "Values are stored in Colombian pesos (COP). Minimum: $ 100 COP.",
+        monedaCambiada: "Currency changed to"
       }
     };
 
+    const monedaGuardada = localStorage.getItem("misgastos-moneda");
     const estado = {
       gastos: [],
       editandoId: null,
       temporizadorMensaje: null,
-      idioma: localStorage.getItem("misgastos-idioma") === "en" ? "en" : "es"
+      idioma: localStorage.getItem("misgastos-idioma") === "en" ? "en" : "es",
+      moneda: MONEDAS[monedaGuardada] ? monedaGuardada : "COP"
     };
 
     const $ = (id) => document.getElementById(id);
     const t = (clave) => TEXTOS[estado.idioma][clave];
 
+    function convertirDesdeCOP(valorCOP) {
+      const moneda = MONEDAS[estado.moneda];
+      return Number(valorCOP) / moneda.tasa;
+    }
+
+    function convertirACP(valor) {
+      return Number(valor) * MONEDAS[estado.moneda].tasa;
+    }
+
     function formatoDinero() {
-      return new Intl.NumberFormat(t("locale"), {
-        style: "currency", currency: "COP", maximumFractionDigits: 0
+      const moneda = MONEDAS[estado.moneda];
+      return new Intl.NumberFormat(moneda.locale, {
+        style: "currency",
+        currency: estado.moneda,
+        minimumFractionDigits: moneda.decimales,
+        maximumFractionDigits: moneda.decimales
       });
     }
 
@@ -513,6 +546,18 @@
       $("resumen").setAttribute("aria-label", estado.idioma === "es" ? "Resumen de gastos" : "Expense summary");
       $("buscador").setAttribute("aria-label", estado.idioma === "es" ? "Buscar gastos" : "Search expenses");
       $("idioma").setAttribute("aria-label", estado.idioma === "es" ? "Idioma" : "Language");
+      $("moneda").setAttribute("aria-label", estado.idioma === "es" ? "Moneda" : "Currency");
+
+      // Etiquetas de monto y ayuda según la moneda seleccionada.
+      $("moneda").value = estado.moneda;
+      const etiqueta = t("monto").replace("COP", estado.moneda);
+      $("etiqueta-monto").textContent = etiqueta;
+      $("etiqueta-editar-monto").textContent = etiqueta;
+      $("ayuda-monto").textContent = t("ayudaConversion");
+      $("ayuda-editar-monto").textContent = t("ayudaConversion");
+      $("monto").placeholder = estado.moneda === "COP" ? "100" : "0.01";
+      $("editar-monto").placeholder = $("monto").placeholder;
+
       renderizarResumen(estado.resumen);
       renderizarTabla();
     }
@@ -525,8 +570,8 @@
       return String(valor ?? "").replace(/[&<>"']/g, (caracter) => sustituciones[caracter]);
     }
 
-    function dinero(valor) {
-      return formatoDinero().format(Number(valor) || 0);
+    function dinero(valorCOP) {
+      return formatoDinero().format(convertirDesdeCOP(valorCOP));
     }
 
     function mostrarMensaje(texto, tipo) {
@@ -621,7 +666,7 @@
     function datosDelFormulario(prefijo) {
       return {
         descripcion: $(prefijo + "descripcion").value,
-        monto: Number($(prefijo + "monto").value),
+        monto: Math.round(convertirACP(Number($(prefijo + "monto").value)) * 100) / 100,
         categoria: $(prefijo + "categoria").value,
         fecha: $(prefijo + "fecha").value
       };
@@ -645,7 +690,9 @@
     function abrirEdicion(gasto) {
       estado.editandoId = gasto.id;
       $("editar-descripcion").value = gasto.descripcion;
-      $("editar-monto").value = gasto.monto;
+      $("editar-monto").value = estado.moneda === "COP"
+        ? gasto.monto
+        : convertirDesdeCOP(gasto.monto).toFixed(MONEDAS[estado.moneda].decimales);
       $("editar-categoria").value = gasto.categoria;
       $("editar-fecha").value = gasto.fecha;
       $("modal-editar").showModal();
@@ -706,6 +753,13 @@
       estado.idioma = evento.target.value === "en" ? "en" : "es";
       localStorage.setItem("misgastos-idioma", estado.idioma);
       aplicarIdioma();
+    });
+
+    $("moneda").addEventListener("change", (evento) => {
+      estado.moneda = MONEDAS[evento.target.value] ? evento.target.value : "COP";
+      localStorage.setItem("misgastos-moneda", estado.moneda);
+      aplicarIdioma();
+      mostrarMensaje(t("monedaCambiada") + " " + estado.moneda, "exito");
     });
 
     // Inicio: fecha de hoy, idioma guardado y primera carga desde la API.

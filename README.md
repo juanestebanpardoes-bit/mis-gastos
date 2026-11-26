@@ -77,7 +77,7 @@ por lo que no modifican tus datos reales.
 | --- | --- | --- |
 | `id` | entero | Generado automáticamente por SQLite. |
 | `descripcion` | texto | Obligatoria, no puede estar vacía. |
-| `monto` | número | Debe ser mayor que 0. |
+| `monto` | número | Debe ser al menos 100 pesos colombianos (COP). |
 | `categoria` | texto | `comida`, `transporte`, `estudio`, `ocio` u `otros`. |
 | `fecha` | texto | Fecha válida con formato `AAAA-MM-DD`. |
 
@@ -98,7 +98,7 @@ Ejemplo de cuerpo para `POST` y `PUT`:
 ```json
 {
   "descripcion": "Compra en el supermercado",
-  "monto": 23.45,
+  "monto": 23450,
   "categoria": "comida",
   "fecha": "2026-11-26"
 }

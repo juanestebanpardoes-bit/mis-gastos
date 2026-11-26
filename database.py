@@ -16,9 +16,9 @@ CATEGORIAS = ("comida", "transporte", "estudio", "ocio", "otros")
 
 # Datos iniciales que se insertan solo cuando la tabla está vacía.
 GASTOS_EJEMPLO = (
-    ("Almuerzo del día", 12.50, "comida", "2026-11-20"),
-    ("Billete de autobús", 8.75, "transporte", "2026-11-21"),
-    ("Libro de programación", 30.00, "estudio", "2026-11-22"),
+    ("Almuerzo del día", 12500, "comida", "2026-11-20"),
+    ("Billete de autobús", 8750, "transporte", "2026-11-21"),
+    ("Libro de programación", 30000, "estudio", "2026-11-22"),
 )
 
 
@@ -52,7 +52,7 @@ def iniciar_db():
             CREATE TABLE IF NOT EXISTS gastos (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 descripcion TEXT    NOT NULL,
-                monto       REAL    NOT NULL CHECK (monto > 0),
+                monto       REAL    NOT NULL CHECK (monto >= 100),
                 categoria   TEXT    NOT NULL CHECK (
                     categoria IN ('comida', 'transporte', 'estudio', 'ocio', 'otros')
                 ),

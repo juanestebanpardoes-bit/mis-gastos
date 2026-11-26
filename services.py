@@ -22,13 +22,16 @@ def _validar_descripcion(valor):
     return valor.strip()
 
 
+MONTO_MINIMO = 100  # Pesos colombianos.
+
+
 def _validar_monto(valor):
-    """Comprueba que el monto sea un número finito mayor que cero."""
+    """Comprueba que el monto sea un número finito de al menos 100 COP."""
     if isinstance(valor, bool) or not isinstance(valor, (int, float)):
-        raise ValueError("El monto debe ser un número mayor que 0.")
+        raise ValueError("El monto debe ser un número de al menos 100 pesos colombianos.")
     monto = float(valor)
-    if not math.isfinite(monto) or monto <= 0:
-        raise ValueError("El monto debe ser un número mayor que 0.")
+    if not math.isfinite(monto) or monto < MONTO_MINIMO:
+        raise ValueError("El monto debe ser un número de al menos 100 pesos colombianos.")
     return monto
 
 

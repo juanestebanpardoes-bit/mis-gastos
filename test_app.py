@@ -40,23 +40,24 @@ class ServiciosTest(unittest.TestCase):
         self.assertEqual(len(services.listar()), 3)
 
     def test_crear_y_obtener(self):
-        gasto = services.crear("Curso de Python", 45.5, "estudio", "2026-11-25")
+        gasto = services.crear("Curso de Python", 45500, "estudio", "2026-11-25")
         self.assertIsInstance(gasto["id"], int)
         self.assertEqual(gasto["descripcion"], "Curso de Python")
-        self.assertEqual(gasto["monto"], 45.5)
+        self.assertEqual(gasto["monto"], 45500)
         self.assertEqual(gasto["categoria"], "estudio")
         self.assertEqual(gasto["fecha"], "2026-11-25")
         self.assertEqual(services.obtener(gasto["id"]), gasto)
 
     def test_validaciones_de_campos(self):
         casos = [
-            ("descripción vacía", ("   ", 10, "comida", "2026-11-25")),
+            ("descripción vacía", ("   ", 1000, "comida", "2026-11-25")),
             ("monto cero", ("Pan", 0, "comida", "2026-11-25")),
             ("monto negativo", ("Pan", -1, "comida", "2026-11-25")),
+            ("monto menor al mínimo", ("Pan", 99, "comida", "2026-11-25")),
             ("monto no numérico", ("Pan", "diez", "comida", "2026-11-25")),
-            ("categoría desconocida", ("Pan", 10, "viajes", "2026-11-25")),
-            ("fecha con formato incorrecto", ("Pan", 10, "comida", "25-11-2026")),
-            ("fecha inexistente", ("Pan", 10, "comida", "2026-02-30")),
+            ("categoría desconocida", ("Pan", 1000, "viajes", "2026-11-25")),
+            ("fecha con formato incorrecto", ("Pan", 1000, "comida", "25-11-2026")),
+            ("fecha inexistente", ("Pan", 1000, "comida", "2026-02-30")),
         ]
         for nombre, datos in casos:
             with self.subTest(nombre=nombre):
@@ -64,25 +65,25 @@ class ServiciosTest(unittest.TestCase):
                     services.crear(*datos)
 
     def test_listar_con_filtro(self):
-        services.crear("Café con leche", 3.2, "comida", "2026-11-24")
-        services.crear("Peaje", 5.0, "transporte", "2026-11-24")
+        services.crear("Café con leche", 3200, "comida", "2026-11-24")
+        services.crear("Peaje", 5000, "transporte", "2026-11-24")
         resultados = services.listar("café")
         self.assertEqual(len(resultados), 1)
         self.assertEqual(resultados[0]["descripcion"], "Café con leche")
         self.assertEqual(len(services.listar()), 5)
 
     def test_actualizar(self):
-        gasto = services.crear("Cine", 9.0, "ocio", "2026-11-23")
-        actualizado = services.actualizar(gasto["id"], "Cine 3D", 12.0, "ocio", "2026-11-24")
+        gasto = services.crear("Cine", 9000, "ocio", "2026-11-23")
+        actualizado = services.actualizar(gasto["id"], "Cine 3D", 12000, "ocio", "2026-11-24")
         self.assertEqual(actualizado["descripcion"], "Cine 3D")
-        self.assertEqual(actualizado["monto"], 12.0)
+        self.assertEqual(actualizado["monto"], 12000)
         self.assertEqual(actualizado["fecha"], "2026-11-24")
 
         with self.assertRaises(LookupError):
-            services.actualizar(9999, "Cine", 9.0, "ocio", "2026-11-23")
+            services.actualizar(9999, "Cine", 9000, "ocio", "2026-11-23")
 
     def test_eliminar(self):
-        gasto = services.crear("Taxi", 15.0, "transporte", "2026-11-22")
+        gasto = services.crear("Taxi", 15000, "transporte", "2026-11-22")
         services.eliminar(gasto["id"])
         with self.assertRaises(LookupError):
             services.obtener(gasto["id"])
@@ -90,11 +91,11 @@ class ServiciosTest(unittest.TestCase):
             services.eliminar(gasto["id"])
 
     def test_resumen(self):
-        services.crear("Cuaderno", 20.0, "estudio", "2026-11-25")
+        services.crear("Cuaderno", 20000, "estudio", "2026-11-25")
         resumen = services.resumen()
-        self.assertEqual(resumen["total"], 71.25)
-        self.assertEqual(resumen["por_categoria"]["estudio"], 50.0)
-        self.assertEqual(resumen["por_categoria"]["comida"], 12.5)
+        self.assertEqual(resumen["total"], 71250)
+        self.assertEqual(resumen["por_categoria"]["estudio"], 50000)
+        self.assertEqual(resumen["por_categoria"]["comida"], 12500)
         self.assertEqual(resumen["por_categoria"]["otros"], 0.0)
         self.assertEqual(set(resumen["por_categoria"]), set(services.CATEGORIAS))
 
@@ -140,7 +141,7 @@ class APITest(unittest.TestCase):
         except urllib.error.HTTPError as error:
             return error.code, json.loads(error.read().decode("utf-8"))
 
-    def crear_gasto(self, descripcion="Prueba API", monto=7.25):
+    def crear_gasto(self, descripcion="Prueba API", monto=7250):
         codigo, gasto = self.pedir(
             "/api/gastos",
             "POST",
@@ -170,7 +171,7 @@ class APITest(unittest.TestCase):
         self.assertEqual(filtrados[0]["descripcion"], "Libro de programación")
 
     def test_crear_y_obtener(self):
-        gasto = self.crear_gasto("Entradas de museo", 14.0)
+        gasto = self.crear_gasto("Entradas de museo", 14000)
         codigo, obtenido = self.pedir("/api/gastos/" + str(gasto["id"]))
         self.assertEqual(codigo, 200)
         self.assertEqual(obtenido, gasto)
@@ -202,20 +203,20 @@ class APITest(unittest.TestCase):
         self.assertEqual(contexto.exception.code, 400)
 
     def test_actualizar_y_eliminar(self):
-        gasto = self.crear_gasto("Alquiler de bici", 10.0)
+        gasto = self.crear_gasto("Alquiler de bici", 10000)
         id_gasto = gasto["id"]
         codigo, actualizado = self.pedir(
             "/api/gastos/" + str(id_gasto),
             "PUT",
             {
                 "descripcion": "Alquiler de bici",
-                "monto": 18.5,
+                "monto": 18500,
                 "categoria": "transporte",
                 "fecha": "2026-11-26",
             },
         )
         self.assertEqual(codigo, 200)
-        self.assertEqual(actualizado["monto"], 18.5)
+        self.assertEqual(actualizado["monto"], 18500)
 
         codigo, mensaje = self.pedir("/api/gastos/" + str(id_gasto), "DELETE")
         self.assertEqual(codigo, 200)

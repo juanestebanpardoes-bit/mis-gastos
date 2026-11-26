@@ -27,6 +27,13 @@ class ManejadorAPI(BaseHTTPRequestHandler):
         """Silencia los registro por defecto para que la consola quede limpia."""
         return
 
+    def handle_one_request(self):
+        """Ignora los cierres bruscos de conexión del navegador."""
+        try:
+            super().handle_one_request()
+        except (ConnectionResetError, BrokenPipeError):
+            self.close_connection = True
+
     def do_GET(self):
         self._despachar("GET")
 
